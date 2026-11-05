@@ -1,0 +1,70 @@
+---
+name: Release binaries
+
+"on":
+  release:
+    types: [published]
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  archives:
+    name: ${{ matrix.target }}
+    runs-on: ${{ matrix.runner }}
+
+    permissions:
+      contents: write # Required to attach the archives to the release
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            runner: ubuntu-latest
+          - target: aarch64-unknown-linux-gnu
+            runner: ubuntu-24.04-arm
+          - target: aarch64-apple-darwin
+            runner: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Just
+        uses: taiki-e/install-action@c509219cf42fba86913069efd0ade2458c59337b # v2.90.1
+        with:
+          tool: just
+
+      # The stiles release that the workspace manifest pins. Stiles refuses a
+      # plugin built against any other release, and the tag it asks for
+      # comes from that same stiles.
+      - name: Download the pinned stiles
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET: ${{ matrix.target }}
+        run: just fetch-stiles "${TARGET}"
+
+      # The rules build with the toolchain this repository pins. Stiles
+      # loads them regardless of which rustc built them.
+      - name: Install the pinned toolchain
+        run: rustup toolchain install
+
+      # This job deliberately keeps no Cargo cache. A pull request can write
+      # to one, and these archives are loaded into stiles's own process on
+      # someone else's machine.
+      - name: Assemble the archive
+        env:
+          REV: ${{ github.sha }}
+        run: just package-lints "${REV}" target/stiles/stiles
+
+      - name: Attach the archive to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "${TAG}" dist/*.tar.gz dist/*.sha256 --clobber

@@ -1,0 +1,10 @@
+# Stiles reads this file when `stiles check` runs against this repository.
+# The first entry builds the rules here and checks this repository with
+# them. The second holds the code here to the Aonyx conventions, pinned to
+# one commit that builds against the same stiles release as these rules.
+[[lints]]
+path = "."
+
+[[lints]]
+git = "https://github.com/aonyx-ai/stiles-aonyx-rules"
+rev = "82ee43a4897900c6b2389d36a6c751ba39871b72"

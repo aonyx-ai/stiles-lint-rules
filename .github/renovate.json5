@@ -1,0 +1,23 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: ["github>aonyx-ai/renovate-config"],
+  packageRules: [
+    {
+      matchPackageNames: ["rust"],
+      matchDepTypes: ["toolchain"],
+      schedule: ["on the first day of the month"],
+    },
+    {
+      // The stiles crates are one decision, never several. A rule compiled
+      // against one release of stiles-rust does not build against another
+      // release of stiles-types, so one pull request moves them all.
+      //
+      // A move of the pin changes what a project sees and needs a
+      // changeset, which renovate does not write. A person merges this one.
+      matchManagers: ["cargo"],
+      matchPackageNames: ["/^stiles-/"],
+      groupName: "stiles",
+      automerge: false,
+    },
+  ],
+}

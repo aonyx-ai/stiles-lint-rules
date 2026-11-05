@@ -1,0 +1,37 @@
+# Every rule in this repository is a stiles plugin: a cdylib that stiles
+# builds at check time and loads into its own process. A plugin is coherent
+# with the stiles that loads it when both lay out the types that cross the
+# boundary the same way, which stiles checks with a protocol version and two
+# fingerprints. The pin below is one stiles release, so the rules build
+# against a known boundary, and a mismatch refuses the plugin with an error.
+[workspace]
+# `lints/*` are the rules themselves, each a cdylib stiles loads.
+# `crates/*` hold what more than one rule needs, as ordinary rlibs that
+# produce no library for stiles to find. `crates/stiles-lint-rules` is the
+# facade that names the release unit.
+members = ["crates/*", "lints/*"]
+resolver = "3"
+
+# Otto releases every crate that inherits this version as one unit. The
+# version is the last release, and Otto moves it at the next one.
+[workspace.package]
+version = "0.0.0"
+edition = "2024"
+
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/aonyx-ai/stiles-lint-rules.git"
+
+[workspace.lints.clippy]
+missing_errors_doc = "warn"
+missing_panics_doc = "warn"
+
+[workspace.dependencies]
+example_pair = { path = "crates/example_pair" }
+lint_pass_item = { path = "crates/lint_pass_item" }
+# One pin for every rule: each stiles crate names the same exact release.
+# A plugin built against one stiles is refused by another, so the version
+# is exact and moves for every crate at once.
+stiles-plugin = "=0.3.0"
+stiles-rust = { version = "=0.3.0", default-features = false }
+stiles-testing = "=0.3.0"
+stiles-types = "=0.3.0"

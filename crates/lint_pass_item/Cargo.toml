@@ -1,0 +1,19 @@
+# The rules here read the items of a lint crate: its passes, their docs,
+# and the constants beside them. This crate holds that reading, as an rlib
+# that exports no plugin declaration.
+[package]
+name = "lint_pass_item"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+stiles-types = { workspace = true }
+
+[dev-dependencies]
+stiles-testing = { workspace = true }
+
+[lints]
+workspace = true
