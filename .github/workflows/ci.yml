@@ -1,0 +1,106 @@
+---
+name: Continuous Integration
+
+"on":
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Format, lint, and test
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    env:
+      NEXTEST_PROFILE: ci
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Just and nextest
+        uses: taiki-e/install-action@c509219cf42fba86913069efd0ade2458c59337b # v2.90.1
+        with:
+          tool: just,cargo-nextest
+
+      - name: Cache Cargo downloads and build output
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            target
+          key: cargo-${{ runner.os }}-${{ hashFiles('Cargo.lock', 'rust-toolchain.toml') }}
+          restore-keys: cargo-${{ runner.os }}-
+
+      - name: Check formatting
+        run: just format-check
+
+      - name: Lint
+        run: just lint
+
+      - name: Test
+        run: just test
+
+  dogfood:
+    name: Check this repository with its own rules
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Just
+        uses: taiki-e/install-action@c509219cf42fba86913069efd0ade2458c59337b # v2.90.1
+        with:
+          tool: just
+
+      - name: Cache Cargo downloads and build output
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            target
+          key: dogfood-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: dogfood-${{ runner.os }}-
+
+      # The stiles release that the workspace manifest pins. Any other stiles
+      # would refuse the rules at the handshake, which is the point of the
+      # job: it tells us the pair still fits before a project finds out.
+      - name: Download the pinned stiles
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: just fetch-stiles x86_64-unknown-linux-gnu
+
+      # Through the recipe, so that this job runs what a developer runs.
+      - name: Check the rules with themselves
+        run: just check-self target/stiles/stiles
+
+  success:
+    name: All checks succeeded
+    runs-on: ubuntu-latest
+
+    permissions: {}
+
+    needs: [checks, dogfood]
+    if: always()
+
+    steps:
+      - name: Check if all checks succeeded
+        run: jq --exit-status 'all(.result == "success")' <<< '${{ toJson(needs) }}'

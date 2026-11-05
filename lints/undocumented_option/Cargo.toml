@@ -1,0 +1,34 @@
+# A lint is its own cargo package, built as a cdylib and loaded by stiles at
+# check time. Every rule here is built against one pinned stiles release,
+# named once in the workspace manifest, because the handshake compares the
+# stiles a plugin was compiled against with the stiles loading it.
+[package]
+name = "undocumented_option"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+# The exported declaration is a `no_mangle` static, so two rules linked into
+# one binary would collide. The cdylib stiles loads keeps it, and the facade
+# turns it off.
+[features]
+default = ["plugin"]
+plugin = []
+
+[dependencies]
+lint_pass_item = { workspace = true }
+stiles-plugin = { workspace = true }
+stiles-rust = { workspace = true }
+stiles-types = { workspace = true }
+
+[dev-dependencies]
+example_pair = { workspace = true }
+stiles-testing = { workspace = true }
+
+[lints]
+workspace = true

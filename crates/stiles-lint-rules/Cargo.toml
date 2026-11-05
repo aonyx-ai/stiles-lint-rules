@@ -1,0 +1,22 @@
+# Otto releases this workspace as one lockstep unit, and such a unit takes
+# the name of its repository. It must hold a crate with that name, and this
+# is that crate. It is an rlib and exports no plugin declaration, so the
+# build produces no dynamic library for stiles to load.
+[package]
+name = "stiles-lint-rules"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+# The facade re-exports every rule, so its docs show all of them in one
+# place. Each rule's `plugin` feature stays off here. A plugin declaration
+# is a `no_mangle` static, and two of them in one library would collide.
+[dependencies]
+incomplete_pass_doc = { path = "../../lints/incomplete_pass_doc", default-features = false }
+undeclared_rule_id = { path = "../../lints/undeclared_rule_id", default-features = false }
+undocumented_option = { path = "../../lints/undocumented_option", default-features = false }
+
+[lints]
+workspace = true
