@@ -177,9 +177,12 @@ fn has_body(lines: &[Line<'_>]) -> bool {
 fn has_pair(section: &[Line<'_>]) -> bool {
     let mut example_seen = false;
     for line in section {
-        if line.fence == Fence::Outside {
-            example_seen = false;
-            continue;
+        match line.fence {
+            Fence::Outside => {
+                example_seen = false;
+                continue;
+            }
+            Fence::Inside => {}
         }
         if line.text == EXAMPLE_MARKER {
             example_seen = true;
