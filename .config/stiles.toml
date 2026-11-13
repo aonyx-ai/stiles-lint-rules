@@ -7,4 +7,4 @@ path = "."
 
 [[lints]]
 git = "https://github.com/aonyx-ai/stiles-aonyx-rules"
-rev = "764333ada2cdbfe1391dc9a9389718ade61181f2"
+rev = "45f0c6cf5d183a0b13411bc9b74969d962cb4b12"
