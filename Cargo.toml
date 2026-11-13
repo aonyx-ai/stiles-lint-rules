@@ -31,7 +31,7 @@ lint_pass_item = { path = "crates/lint_pass_item" }
 # One pin for every rule: each stiles crate names the same exact release.
 # A plugin built against one stiles is refused by another, so the version
 # is exact and moves for every crate at once.
-stiles-plugin = "=0.7.0"
-stiles-rust = { version = "=0.7.0", default-features = false }
-stiles-testing = "=0.7.0"
-stiles-types = "=0.7.0"
+stiles-plugin = "=0.8.0"
+stiles-rust = { version = "=0.8.0", default-features = false }
+stiles-testing = "=0.8.0"
+stiles-types = "=0.8.0"
