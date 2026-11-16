@@ -42,7 +42,8 @@ changeset.
 
 ### A rule reads one file
 
-A rule here reads the syntax of one file and needs no decoration. A rule
+A rule here reads the syntax of one file. It reads a decoration only to
+tell test code from other code, as `lint.untested-fix` does. A rule
 pass, its docs, its options, and its declared rule ids usually sit in one
 `lib.rs`. A rule that cannot find what it checks in that file stays silent,
 because a finding it cannot justify costs more than a missed one.

@@ -31,7 +31,11 @@ lint_pass_item = { path = "crates/lint_pass_item" }
 # One pin for every rule: each stiles crate names the same exact release.
 # A plugin built against one stiles is refused by another, so the version
 # is exact and moves for every crate at once.
-stiles-plugin = "=0.8.0"
-stiles-rust = { version = "=0.8.0", default-features = false }
-stiles-testing = "=0.8.0"
-stiles-types = "=0.8.0"
+stiles-plugin = "=0.8.2"
+stiles-rust = { version = "=0.8.2", default-features = false }
+stiles-testing = "=0.8.2"
+stiles-types = "=0.8.2"
+# A test that names the file it parses builds the tree with a parser of its
+# own. The version matches stiles's own, so that the tree fits a
+# `DecoratedTree`.
+tree-sitter = "0.27"
