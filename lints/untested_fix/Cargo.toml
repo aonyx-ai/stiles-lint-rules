@@ -26,12 +26,9 @@ stiles-plugin = { workspace = true }
 stiles-rust = { workspace = true }
 stiles-types = { workspace = true }
 
-# The tests parse with a tree-sitter parser of their own, because a test
-# names its file `src/lib.rs` and `stiles_testing::parse` names it `<test>`.
 [dev-dependencies]
 example_pair = { workspace = true }
 stiles-testing = { workspace = true }
-tree-sitter = { workspace = true }
 
 [lints]
 workspace = true
