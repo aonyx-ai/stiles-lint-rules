@@ -17,6 +17,7 @@ publish = false
 incomplete_pass_doc = { path = "../../lints/incomplete_pass_doc", default-features = false }
 undeclared_rule_id = { path = "../../lints/undeclared_rule_id", default-features = false }
 undocumented_option = { path = "../../lints/undocumented_option", default-features = false }
+untested_fix = { path = "../../lints/untested_fix", default-features = false }
 
 [lints]
 workspace = true

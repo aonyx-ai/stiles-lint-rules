@@ -14,3 +14,4 @@
 pub use incomplete_pass_doc;
 pub use undeclared_rule_id;
 pub use undocumented_option;
+pub use untested_fix;

@@ -16,8 +16,8 @@ rev = "0123456789abcdef0123456789abcdef01234567"
 ## The rules
 
 Each directory under `lints/` is one rule, and each documents itself with a
-negative example and its fix. Every rule reports an error and reads the
-syntax of one file.
+negative example and its fix. Every rule reports an error and reads one
+file. `lint.untested-fix` also reads the decorations that mark test code.
 
 - `lint.incomplete-pass-doc` reports a public lint pass whose docs lack a
   summary, a body, an `# Examples` section, or a `// DON'T` example with its
@@ -26,6 +26,16 @@ syntax of one file.
   `RuleOptions` and its docs do not name.
 - `lint.undeclared-rule-id` reports a diagnostic whose rule id no
   `DeclaresRules` in the file declares.
+- `lint.untested-fix` reports a fix that a crate root attaches when no test
+  in that file applies a fix.
+
+`lint.untested-fix` reads `fix-assertions`. It names the functions whose
+call in a test applies a fix, and it replaces the default, `assert_fix`:
+
+```toml
+[rules.options."lint.untested-fix"]
+fix-assertions = ["assert_fix", "assert_example"]
+```
 
 ## The stiles pin
 
