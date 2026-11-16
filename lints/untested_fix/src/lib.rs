@@ -93,24 +93,14 @@ const CRATE_ROOT: &str = "lib.rs";
 /// marks the test by hand, in a tree parsed as `src/lib.rs`.
 ///
 /// ```
-/// use std::path::PathBuf;
-///
 /// use stiles_rust::RustLintPassAdapter;
 /// use stiles_rust::decorations::TestCode;
-/// use stiles_testing::execute;
-/// use stiles_types::{DecoratedTree, Language, LintPass};
+/// use stiles_testing::{execute, parse_at};
+/// use stiles_types::{Language, LintPass};
 /// use untested_fix::UntestedFix;
 ///
 /// let source = "fn f() { d.with_fix(fix); }\n#[test]\nfn t() { run(); }\n";
-/// let mut parser = tree_sitter::Parser::new();
-/// parser.set_language(&stiles_rust::language())?;
-/// let parsed = parser.parse(source, None).expect("the source should parse");
-/// let mut tree = DecoratedTree::builder()
-///     .tree(parsed)
-///     .language(Language::Rust)
-///     .source(source.to_owned())
-///     .file(PathBuf::from("src/lib.rs"))
-///     .build();
+/// let mut tree = parse_at("src/lib.rs", source, Language::Rust);
 /// let test = tree.root_node().named_child(2).expect("the source should hold a test").id();
 /// tree.decorations_mut().insert(test, TestCode::Marked);
 /// let pass: Box<dyn LintPass> = Box::new(RustLintPassAdapter::new(UntestedFix::default()));
@@ -118,7 +108,6 @@ const CRATE_ROOT: &str = "lib.rs";
 /// let diagnostics = execute(&tree, &mut [pass]);
 ///
 /// assert_eq!(diagnostics.len(), 1);
-/// # Ok::<(), tree_sitter::LanguageError>(())
 /// ```
 pub struct UntestedFix {
     /// The names of the functions whose call in a test applies a fix
@@ -299,17 +288,7 @@ mod tests {
     /// decorates. The syntactic check of `lint_pass_item` finds the same
     /// items here.
     fn parse_at(path: &Path, source: &str) -> DecoratedTree {
-        let mut parser = tree_sitter::Parser::new();
-        parser
-            .set_language(&stiles_rust::language())
-            .expect("the Rust grammar should load");
-        let parsed = parser.parse(source, None).expect("the source should parse");
-        let mut tree = DecoratedTree::builder()
-            .tree(parsed)
-            .language(Language::Rust)
-            .source(source.to_owned())
-            .file(path.to_path_buf())
-            .build();
+        let mut tree = stiles_testing::parse_at(path, source, Language::Rust);
         let marked: Vec<usize> = descendants(tree.root_node(), "function_item")
             .into_iter()
             .chain(descendants(tree.root_node(), "mod_item"))
